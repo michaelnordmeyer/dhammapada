@@ -1,0 +1,10 @@
+.well-known/security.txt
+
+# Build artefacts
+assets/icons
+chapter-*
+index.html
+introduction.html
+preface.html
+robots.txt
+sitemap.xml
