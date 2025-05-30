@@ -16,6 +16,12 @@ build:
 	@qjs --std dhammapada.js "https://${domain}" ${build_date}
 	@./generate-icon.sh
 
+.PHONY: robots
+robots:
+	$(info ==> Building ${domain} robots.txt...)
+	@printf "Sitemap: https://${domain}/sitemap.xml\n\n" > robots.txt
+	@cat ../robots.txt >> robots.txt
+
 .PHONY: rsync
 rsync:
 	$(info ==> Rsyncing ${domain}'s content to SSH host ${ssh_host}...)
@@ -25,13 +31,32 @@ rsync:
 		--exclude=.git \
 		--exclude=.gitignore \
 		--exclude=Makefile \
-		--exclude=icon.sh \
+		--exclude=generate-icon.sh \
 		./ \
 		${ssh_user}@${ssh_host}:${ssh_path}
 
+.PHONY: scprobots
+scprobots:
+	$(info ==> Scp'ing ${domain} robots.txt to SSH host ${ssh_host}...)
+	@scp -P ${ssh_port} robots.txt ${ssh_user}@${ssh_host}:${ssh_path}
+
+.PHONY: gzip
+gzip:
+	$(info ==> Gzip'ing ${domain} via SSH...)
+	@ssh -p ${ssh_port} ${ssh_user}@${ssh_host} 'for file in $$(find ${ssh_path} -type f -size +1400c -regex ".*\.\(css\(\.map\)\?\|html\|js\|json\|svg\|txt\|xml\|xsl\(t\)\?\)$$"); do printf . && gzip -kf "$${file}" && brotli -kf -q 4 "$${file}"; done; echo'
+
+.PHONY: gziprobots
+gziprobots:
+	$(info ==> Gzip'ing ${domain} robots.txt via SSH...)
+	@ssh -p ${ssh_port} ${ssh_user}@${ssh_host} 'gzip -kf ${ssh_path}robots.txt'
+
 .PHONY: deploy
-deploy: clean build rsync
-	$(info ==> Deployed ${base_url} to SSH host ${ssh_host}...)
+deploy: clean build robots rsync gzip
+	$(info ==> Deployed ${domain} to SSH host ${ssh_host}...)
+
+.PHONY: deployrobots
+deployrobots: robots scprobots gziprobots
+	$(info ==> Deployed ${domain} robots.txt to SSH host ${ssh_host}...)
 
 .PHONY: clean
 clean:
