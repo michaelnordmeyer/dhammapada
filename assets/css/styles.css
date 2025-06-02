@@ -9,7 +9,7 @@ html {
 body { margin: 0; }
 hr { border: 0; border-top: 1px solid #ddd; }
 h1, h2, h3 { text-align: center; line-height: 1em; text-wrap: balance; }
-h1 { font-size: 2rem; }
+h1 { margin-block: 0.67em; font-size: 2rem; }
 a { color: white; text-decoration-color: #ddd; }
 ul { padding: 0; }
 ul > li { margin: 1em 0; list-style-type: none; }
