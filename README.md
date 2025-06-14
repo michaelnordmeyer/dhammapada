@@ -2,7 +2,7 @@
 
 This repository will generate a [static website having the Dhammapada as content](https://dhammapada.michaelnordmeyer.com/).
 
-It generates from `dhammapada.json` the HTM, a sitemap.xml, and a robots.txt. It needs `quickjs` for that, a tiny JavaScript interpreter, which can be installed on macOS with [Homebrew](https://brew.sh/): `brew install quickjs`
+It generates from `dhammapada.json` the HTML, a sitemap.xml, and a robots.txt. It needs `quickjs` for that, a tiny JavaScript interpreter, which can be installed on macOS with [Homebrew](https://brew.sh/): `brew install quickjs`
 
 The `Makefile` has everything to make and deploy the site. Its configuration is located at the beginning.
 
@@ -10,7 +10,7 @@ For successful generation of the favicon with `generate-icon.sh`, a font with th
 
 ## License
 
-With the exception of the included `dhammpada.pdf`, which is the source for the content and has its own license noted below, all code is licensed under:
+With the exception of the included `dhammpada.pdf`, which is the source for the content and has [its own license noted below](#dhammapadapdf-license), all code is licensed under:
 
 ```text
 MIT License
