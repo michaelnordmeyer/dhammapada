@@ -40,22 +40,22 @@ scprobots:
 	$(info ==> Scp'ing ${domain} robots.txt to SSH host ${ssh_host}...)
 	@scp -P ${ssh_port} robots.txt ${ssh_user}@${ssh_host}:${ssh_path}
 
-.PHONY: gzip
-gzip:
-	$(info ==> Gzip'ing ${domain} via SSH...)
-	@ssh -p ${ssh_port} ${ssh_user}@${ssh_host} 'for file in $$(find ${ssh_path} -type f -size +1400c -regex ".*\.\(css\(\.map\)\?\|html\|js\|json\|svg\|txt\|xml\|xsl\(t\)\?\)$$"); do printf . && gzip -kf "$${file}" && brotli -kf -q 4 "$${file}"; done; echo'
+.PHONY: compress
+compress:
+	$(info ==> Compressing ${domain} via SSH...)
+	@ssh -p ${ssh_port} ${ssh_user}@${ssh_host} 'for file in $$(find ${ssh_path} -type f -regex ".*\.\(css\|map\|html\|js\|json\|svg\|txt\|xml\|xsl\|xslt\)$$"); do printf . && gzip -kf "$${file}" && brotli -kf -q 4 "$${file}"; done; echo'
 
-.PHONY: gziprobots
-gziprobots:
-	$(info ==> Gzip'ing ${domain} robots.txt via SSH...)
-	@ssh -p ${ssh_port} ${ssh_user}@${ssh_host} 'gzip -kf ${ssh_path}robots.txt'
+.PHONY: compressrobots
+compressrobots:
+	$(info ==> Compressing ${domain} robots.txt via SSH...)
+	@ssh -p ${ssh_port} ${ssh_user}@${ssh_host} 'gzip -kf ${ssh_path}/robots.txt && brotli -kf -q 4 ${ssh_path}/robots.txt'
 
 .PHONY: deploy
-deploy: clean build robots rsync gzip
+deploy: clean build robots rsync compress
 	$(info ==> Deployed ${domain} to SSH host ${ssh_host}...)
 
 .PHONY: deployrobots
-deployrobots: robots scprobots gziprobots
+deployrobots: robots scprobots compressrobots
 	$(info ==> Deployed ${domain} robots.txt to SSH host ${ssh_host}...)
 
 .PHONY: clean
