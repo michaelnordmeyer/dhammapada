@@ -14,7 +14,7 @@ const sitemapLastmodDate = scriptArgs[2];
 const dhammapada = JSON.parse(std.loadFile("dhammapada.json"));
 
 function generatePageStart(title, canonicalUrl) {
-  return `<!DOCTYPE html>
+  return `<!doctype html>
 <html lang="en-US">
 <head>
   <meta charset="utf-8">
