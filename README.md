@@ -1,6 +1,6 @@
 # A Dhammapada Site Generated from JSON
 
-This repository will generate a [static website having the Dhammapada as content](https://dhammapada.michaelnordmeyer.com/).
+This repository will generate a [static website having The Dhammapada as content](https://dhammapada.michaelnordmeyer.com/).
 
 It generates from `dhammapada.json` the HTML, a sitemap.xml, and a robots.txt. It needs `quickjs` for that, a tiny JavaScript interpreter, which can be installed on macOS with [Homebrew](https://brew.sh/): `brew install quickjs`
 
