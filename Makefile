@@ -38,7 +38,7 @@ rsync:
 .PHONY: scprobots
 scprobots:
 	$(info ==> Scp'ing ${domain} robots.txt to SSH host ${ssh_host}...)
-	@scp -P ${ssh_port} robots.txt ${ssh_user}@${ssh_host}:${ssh_path}
+	@scp -P ${ssh_port} robots.txt ${ssh_user}@${ssh_host}:${ssh_path}/
 
 .PHONY: compress
 compress:
