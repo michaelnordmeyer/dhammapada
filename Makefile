@@ -43,7 +43,7 @@ scprobots:
 .PHONY: compress
 compress:
 	$(info ==> Compressing ${domain} via SSH...)
-	@ssh -p ${ssh_port} ${ssh_user}@${ssh_host} 'for file in $$(find ${ssh_path} -type f -regex ".*\.\(css\|map\|html\|js\|json\|svg\|txt\|xml\|xsl\|xslt\)$$"); do printf . && gzip -kf "$${file}" && brotli -kf -q 4 "$${file}"; done; echo'
+	@ssh -p ${ssh_port} ${ssh_user}@${ssh_host} 'for file in $$(find ${ssh_path} -type f -regex ".*\.\(css\|map\|html\|js\|json\|svg\|txt\|xml\)$$"); do printf . && gzip -kf "$${file}" && brotli -kf -q 4 "$${file}"; done; echo'
 
 .PHONY: compressrobots
 compressrobots:
