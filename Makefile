@@ -8,7 +8,7 @@ build_date = "2024-04-24T12:00:00.000Z"
 ssh_host = michaelnordmeyer.com
 ssh_port = 1111
 ssh_user = root
-ssh_path = "/var/www/${domain}/"
+ssh_path = "/srv/${domain}/"
 
 .PHONY: help
 help:
