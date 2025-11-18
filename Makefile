@@ -55,7 +55,7 @@ compressrobots: ## Compresses robots.txt on the remote server
 	@ssh -p ${ssh_port} ${ssh_user}@${ssh_host} 'gzip -kf -9 ${ssh_path}/robots.txt && brotli -kf -q 9 ${ssh_path}/robots.txt'
 
 .PHONY: deploy
-deploy: clean build robots rsync compress ## Builds and deploys artifact to the remote server
+deploy: build robots rsync compress ## Builds and deploys artifact to the remote server
 	$(info ==> Deployed ${domain} to SSH host ${ssh_host}...)
 
 .PHONY: deployrobots
