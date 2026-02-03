@@ -5,6 +5,7 @@
 // Example: qjs --std dhammapada.js "https://example.com" "2024-01-01T12:00:00.000Z"
 
 const htmlFileextension = "html";
+const linkHtmlFileextension = `.${htmlFileextension}`;
 const indexFilename = `index.${htmlFileextension}`;
 const sitemapFilename = "sitemap.xml";
 
@@ -13,7 +14,7 @@ const sitemapLastmodDate = scriptArgs[2];
 
 const dhammapada = JSON.parse(std.loadFile("dhammapada.json"));
 
-function generatePageStart(title, canonicalUrl) {
+function generatePageStart(title, canonicalName) {
   return `<!doctype html>
 <html lang="en-US">
 <head>
@@ -23,7 +24,7 @@ function generatePageStart(title, canonicalUrl) {
   <link rel="icon" type="image/webp" href="/assets/icons/icon.webp">
   <link rel="stylesheet" href="/assets/css/styles.css">
   <title>${title}</title>
-  <link rel="canonical" href="${canonicalUrlPrefix}/${canonicalUrl}">
+  <link rel="canonical" href="${canonicalUrlPrefix}/${canonicalName}">
 </head>
 <body>
   <main>`
@@ -95,8 +96,8 @@ function generateIndex(filename, canonicalName) {
         <h2>${dhammapada.subtitle}</h2>
       </header>
       <p><em>${dhammapada.translation_note}</em></p>
-      <p><a href="${dhammapada.pages[0].title.toLowerCase()}">${dhammapada.pages[0].title} by ${dhammapada.pages[0].author}</a></p>
-      <p><a href="${dhammapada.pages[1].title.toLowerCase()}">${dhammapada.pages[1].title} by ${dhammapada.pages[1].author}</a></p>
+      <p><a href="${dhammapada.pages[0].title.toLowerCase()}${linkHtmlFileextension}">${dhammapada.pages[0].title} by ${dhammapada.pages[0].author}</a></p>
+      <p><a href="${dhammapada.pages[1].title.toLowerCase()}${linkHtmlFileextension}">${dhammapada.pages[1].title} by ${dhammapada.pages[1].author}</a></p>
       <h3>Chapters</h3>
       <ol>`);
 
@@ -173,7 +174,7 @@ function generateChapter(filename, canonicalName, chapterIndex) {
 `);
 
   for (let verseIndex = 0; verseIndex < dhammapada.chapters[chapterIndex].verses.length; verseIndex++) {
-    file.puts(`    <article>${dhammapada.chapters[chapterIndex].verses[verseIndex].no}. <a href="${dhammapada.chapters[chapterIndex].verses[verseIndex].no}">${dhammapada.chapters[chapterIndex].verses[verseIndex].verse}</a></article>\n`);
+    file.puts(`    <article>${dhammapada.chapters[chapterIndex].verses[verseIndex].no}. <a href="${dhammapada.chapters[chapterIndex].verses[verseIndex].no}${linkHtmlFileextension}">${dhammapada.chapters[chapterIndex].verses[verseIndex].verse}</a></article>\n`);
   }
 
   file.puts(`    <footer>
@@ -238,19 +239,19 @@ function generateVerse(filename, canonicalName, chapterIndex, verseIndex) {
   if (verseIndex === 0) {
     if (chapterIndex > 0) {
       const previousVersesLength = dhammapada.chapters[chapterIndex - 1].verses.length;
-      previousVerseLink = `          <a rel="prev" href="../chapter-${chapterIndex}/${dhammapada.chapters[chapterIndex - 1].verses[previousVersesLength - 1].no}" accesskey="p">Previous</a>`;
+      previousVerseLink = `          <a rel="prev" href="../chapter-${chapterIndex}/${dhammapada.chapters[chapterIndex - 1].verses[previousVersesLength - 1].no}${linkHtmlFileextension}" accesskey="p">Previous</a>`;
     }
   } else {
-    previousVerseLink = `          <a rel="prev" href="${dhammapada.chapters[chapterIndex].verses[verseIndex - 1].no}" accesskey="p">Previous</a>`;
+    previousVerseLink = `          <a rel="prev" href="${dhammapada.chapters[chapterIndex].verses[verseIndex - 1].no}${linkHtmlFileextension}" accesskey="p">Previous</a>`;
   }
 
   let nextVerseLink;
   if (verseIndex === dhammapada.chapters[chapterIndex].verses.length - 1) {
     if (chapterIndex !== dhammapada.chapters.length - 1) {
-      nextVerseLink = `          <a rel="next" href="../chapter-${chapterIndex + 2}/${dhammapada.chapters[chapterIndex + 1].verses[0].no}" accesskey="n">Next</a>`;
+      nextVerseLink = `          <a rel="next" href="../chapter-${chapterIndex + 2}/${dhammapada.chapters[chapterIndex + 1].verses[0].no}${linkHtmlFileextension}" accesskey="n">Next</a>`;
     }
   } else {
-    nextVerseLink = `          <a rel="next" href="${dhammapada.chapters[chapterIndex].verses[verseIndex + 1].no}" accesskey="n">Next</a>`;
+    nextVerseLink = `          <a rel="next" href="${dhammapada.chapters[chapterIndex].verses[verseIndex + 1].no}${linkHtmlFileextension}" accesskey="n">Next</a>`;
   }
 
   if (previousVerseLink !== undefined) {
@@ -275,27 +276,30 @@ generateRobots();
 generateSitemapStart();
 generateIndex(indexFilename, "");
 generatePages();
-// Generate chapter indexes
+// Generate chapter indexes and verses
 for (let chapterIndex = 0; chapterIndex < dhammapada.chapters.length; chapterIndex++) {
   const directoryName = `chapter-${chapterIndex + 1}`;
   createDirectory(directoryName);
   generateChapter(`${directoryName}/${indexFilename}`, `${directoryName}/`, chapterIndex);
   // Generate verses for chapter
   for (let verseIndex = 0; verseIndex < dhammapada.chapters[chapterIndex].verses.length; verseIndex++) {
-    generateVerse(`${directoryName}/${dhammapada.chapters[chapterIndex].verses[verseIndex].no}.${htmlFileextension}`, `${directoryName}/${dhammapada.chapters[chapterIndex].verses[verseIndex].no}`, chapterIndex, verseIndex);
+    generateVerse(
+      `${directoryName}/${dhammapada.chapters[chapterIndex].verses[verseIndex].no}.${htmlFileextension}`,
+      `${directoryName}/${dhammapada.chapters[chapterIndex].verses[verseIndex].no}`,
+      chapterIndex,
+      verseIndex);
   }
 }
 generateSitemapEnd();
 
 function openFile(filename) {
-  print(`Opening file ${filename} for writing...`);
+  print(`Opening file '${filename}' for writing...`);
 
   const fd = os.open(filename, os.O_CREAT | os.O_RDWR);
-  // print("File descriptor: " + fd);
   const error = { errno: 0 };
   const file = std.fdopen(fd, "w+", error);
   if (error.errno != 0) {
-    print(`File open ${filename} error: ${std.strerror(error.errno * -1)}`);
+    print(`Open file '${filename}' error: ${std.strerror(error.errno * -1)}`);
     os.close(fd);
     std.exit(error.errno * -1);
   }
@@ -309,7 +313,7 @@ function removeFile(filename) {
     if (errno == 2) {
       // No such file or directory
     } else {
-      print(`Remove ${filename} error: ${std.strerror(errno)}`);
+      print(`Remove file '${filename}' error: ${std.strerror(errno)}`);
       std.exit(errno);
     }
   }
@@ -323,11 +327,11 @@ function createDirectory(directoryName) {
       // No such file or directory
       const errno = os.mkdir(directoryName) * -1;
       if (errno != 0) {
-        print(`Create directory ${directoryName} error: ${std.strerror(errno)}`);
+        print(`Create directory '${directoryName}' error: ${std.strerror(errno)}`);
         std.exit(errno);
       }
     } else {
-      print(`Read directory ${directoryName} error: ${std.strerror(files[1])}`);
+      print(`Read directory '${directoryName}' error: ${std.strerror(files[1])}`);
       std.exit(files[1]);
     }
   } else {
