@@ -5,7 +5,8 @@
 // Example: qjs --std dhammapada.js "https://example.com" "2024-01-01T12:00:00.000Z"
 
 const htmlFileextension = "html";
-const linkHtmlFileextension = `.${htmlFileextension}`;
+// const linkHtmlFileextension = `.${htmlFileextension}`;
+const linkHtmlFileextension = "";
 const indexFilename = `index.${htmlFileextension}`;
 const sitemapFilename = "sitemap.xml";
 
