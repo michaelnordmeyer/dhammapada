@@ -35,6 +35,7 @@ rsync: ## Syncs artifact to remote server
 		--exclude=.git \
 		--exclude=.gitignore \
 		--exclude=Makefile \
+		--exclude=README.md \
 		--exclude=generate-icon.sh \
 		./ \
 		${ssh_user}@${ssh_host}:${ssh_path}
