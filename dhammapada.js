@@ -14,6 +14,7 @@ const canonicalUrlPrefix = scriptArgs[1];
 const sitemapLastmodDate = scriptArgs[2];
 
 const dhammapada = JSON.parse(std.loadFile("dhammapada.json"));
+sitemapEntries = "";
 
 function generatePageStart(title, canonicalName) {
   return `<!doctype html>
@@ -40,57 +41,20 @@ function generatePageEnd() {
 }
 
 function generateRobots() {
-  const filename = "robots.txt";
-  removeFile(filename);
-  const file = openFile(filename);
-
-  file.puts(`Sitemap: ${canonicalUrlPrefix}/${sitemapFilename}\n`);
-
-  file.close();
-}
-
-function generateSitemapStart() {
-  removeFile(sitemapFilename);
-  const file = openFile(sitemapFilename);
-
-  file.puts(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
-  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-`);
-
-  file.close();
+  replaceFileWithContent("robots.txt", `Sitemap: ${canonicalUrlPrefix}/${sitemapFilename}\n`);
 }
 
 function generateSitemapEntry(canonicalName) {
-  const file = openFile(sitemapFilename);
-  file.seek(0, std.SEEK_END);
-
-  file.puts(`  <url>
+  sitemapEntries += `  <url>
     <loc>${canonicalUrlPrefix}/${canonicalName}</loc>
     <lastmod>${sitemapLastmodDate}</lastmod>
   </url>
-`);
-
-  file.close();
-}
-
-function generateSitemapEnd() {
-  const file = openFile(sitemapFilename);
-  file.seek(0, std.SEEK_END);
-
-  file.puts("</urlset>\n");
-
-  file.close();
+`;
 }
 
 function generateIndex(filename, canonicalName) {
-  removeFile(filename);
-  const file = openFile(filename);
-
-  file.puts(generatePageStart(`${dhammapada.title} – ${dhammapada.subtitle}`, canonicalName));
-  file.puts(`
+  content = generatePageStart(`${dhammapada.title} – ${dhammapada.subtitle}`, canonicalName);
+  content += `
     <article>
       <header>
         <h1>${dhammapada.title}</h1>
@@ -100,33 +64,32 @@ function generateIndex(filename, canonicalName) {
       <p><a href="${dhammapada.pages[0].title.toLowerCase()}${linkHtmlFileextension}">${dhammapada.pages[0].title} by ${dhammapada.pages[0].author}</a></p>
       <p><a href="${dhammapada.pages[1].title.toLowerCase()}${linkHtmlFileextension}">${dhammapada.pages[1].title} by ${dhammapada.pages[1].author}</a></p>
       <h3>Chapters</h3>
-      <ol>`);
+      <ol>`;
 
   for (let chapterIndex = 0; chapterIndex < dhammapada.chapters.length; chapterIndex++) {
-    file.puts(`\n        <li><a href="chapter-${chapterIndex + 1}/">${dhammapada.chapters[chapterIndex].title}</a></li>`);
+    content += `\n        <li><a href="chapter-${chapterIndex + 1}/">${dhammapada.chapters[chapterIndex].title}</a></li>`;
   }
 
-  file.puts(`
+  content += `
       </ol>
       <p>${dhammapada.copyright}</p>
-`);
+`;
 
   for (let licenseIndex = 0; licenseIndex < dhammapada.license.length; licenseIndex++) {
-    file.puts(`      <p>${dhammapada.license[licenseIndex]}</p>\n`);
+    content += `      <p>${dhammapada.license[licenseIndex]}</p>\n`;
   }
 
-  file.puts(`      <hr>
+  content += `      <hr>
       <ul>
         <li><a href="dhammapada.pdf" rel="noindex">The source PDF</a></li>
         <li><a href="dhammapada.json" rel="noindex">A JSON file with the PDF’s content for processing</a></li>
         <li><a href="dhammapada.js" rel="noindex">A JavaScript to generate these pages from above JSON</a></li>
-      </ul>`);
+      </ul>`;
 
-  file.puts("\n    </article>");
-  file.puts(generatePageEnd());
+  content += "\n    </article>";
+  content += generatePageEnd();
 
-  file.close();
-
+  replaceFileWithContent(filename, content);
   generateSitemapEntry(canonicalName);
 }
 
@@ -138,49 +101,43 @@ function generatePages() {
 
 function generatePage(page) {
   const filename = `${page.title.toLowerCase()}.${htmlFileextension}`;
-  removeFile(filename);
-  const file = openFile(filename);
 
-  file.puts(generatePageStart(`${dhammapada.title} – ${page.title}`, page.title.toLowerCase()));
-  file.puts(`
+  content = generatePageStart(`${dhammapada.title} – ${page.title}`, page.title.toLowerCase());
+  content += `
     <article>
       <header>
         <h1><a href="." accesskey="h">${dhammapada.title}</a></h1>
         <h2>${page.title}</h2>
       </header>
-      <p><em>By ${page.author}</em></p>`);
+      <p><em>By ${page.author}</em></p>`;
 
   for (let contentIndex = 0; contentIndex < page.content.length; contentIndex++) {
-    file.puts(`\n      <p>${page.content[contentIndex]}</p>`);
+    content += `\n      <p>${page.content[contentIndex]}</p>`;
   }
 
-  file.puts("\n    </article>");
-  file.puts(generatePageEnd());
+  content += "\n    </article>";
+  content += generatePageEnd();
 
-  file.close();
-
+  replaceFileWithContent(filename, content);
   generateSitemapEntry(page.title.toLowerCase());
 }
 
 function generateChapter(filename, canonicalName, chapterIndex) {
-  removeFile(filename);
-  const file = openFile(filename);
-
-  file.puts(generatePageStart(`${dhammapada.title} – Chapter ${chapterIndex + 1}: “${dhammapada.chapters[chapterIndex].title}”`, canonicalName));
-  file.puts(`
+  content = generatePageStart(`${dhammapada.title} – Chapter ${chapterIndex + 1}: “${dhammapada.chapters[chapterIndex].title}”`, canonicalName);
+  content += `
     <header>
       <h1><a href=".." accesskey="h">${dhammapada.title}</a></h1>
       <h2>Chapter ${chapterIndex + 1}: “${dhammapada.chapters[chapterIndex].title}”</h2>
     </header>
-`);
+`;
 
   for (let verseIndex = 0; verseIndex < dhammapada.chapters[chapterIndex].verses.length; verseIndex++) {
-    file.puts(`    <article>${dhammapada.chapters[chapterIndex].verses[verseIndex].no}. <a href="${dhammapada.chapters[chapterIndex].verses[verseIndex].no}${linkHtmlFileextension}">${dhammapada.chapters[chapterIndex].verses[verseIndex].verse}</a></article>\n`);
+    content += `    <article>${dhammapada.chapters[chapterIndex].verses[verseIndex].no}. <a href="${dhammapada.chapters[chapterIndex].verses[verseIndex].no}${linkHtmlFileextension}">${dhammapada.chapters[chapterIndex].verses[verseIndex].verse}</a></article>\n`;
   }
 
-  file.puts(`    <footer>
+  content += `    <footer>
       <nav>
-`);
+`;
   // Chapter linking
   let previousChapterLink;
   if (chapterIndex > 0) {
@@ -195,28 +152,24 @@ function generateChapter(filename, canonicalName, chapterIndex) {
   }
 
   if (previousChapterLink !== undefined) {
-    file.puts(`${previousChapterLink}\n`);
+    content += `${previousChapterLink}\n`;
   }
   if (nextChapterLink !== undefined) {
-    file.puts(`${nextChapterLink}\n`);
+    content += `${nextChapterLink}\n`;
   }
-  file.puts(`      </nav>
-    </footer>`);
+  content += `      </nav>
+    </footer>`;
 
-  file.puts(generatePageEnd());
+  content += generatePageEnd();
 
-  file.close();
-
+  replaceFileWithContent(filename, content);
   generateSitemapEntry(canonicalName);
 }
 
 function generateVerse(filename, canonicalName, chapterIndex, verseIndex) {
-  removeFile(filename);
-  const file = openFile(filename);
+  content = generatePageStart(`${dhammapada.title} – Chapter ${chapterIndex + 1}: “${dhammapada.chapters[chapterIndex].title}” – ${dhammapada.chapters[chapterIndex].verses[verseIndex].no}`, canonicalName);
 
-  file.puts(generatePageStart(`${dhammapada.title} – Chapter ${chapterIndex + 1}: “${dhammapada.chapters[chapterIndex].title}” – ${dhammapada.chapters[chapterIndex].verses[verseIndex].no}`, canonicalName));
-
-  file.puts(`
+  content += `
     <article>
       <header>
         <h1><a href=".." accesskey="h">${dhammapada.title}</a></h1>
@@ -224,17 +177,17 @@ function generateVerse(filename, canonicalName, chapterIndex, verseIndex) {
         <h3>${dhammapada.chapters[chapterIndex].verses[verseIndex].no}</h3>
       </header>
       <p>${dhammapada.chapters[chapterIndex].verses[verseIndex].verse}</p>
-`);
+`;
   const footnote = dhammapada.chapters[chapterIndex].verses[verseIndex].footnote;
   if (footnote !== undefined) {
-    file.puts(`      <hr>
+    content += `      <hr>
       <p>${footnote}</p>
-`);
+`;
   }
 
-  file.puts(`      <footer>
+  content += `      <footer>
         <nav>
-`);
+`;
   // Verse linking. Some "numbers" cover more than one verse
   let previousVerseLink;
   if (verseIndex === 0) {
@@ -256,25 +209,35 @@ function generateVerse(filename, canonicalName, chapterIndex, verseIndex) {
   }
 
   if (previousVerseLink !== undefined) {
-    file.puts(`${previousVerseLink}\n`);
+    content += `${previousVerseLink}\n`;
   }
   if (nextVerseLink !== undefined) {
-    file.puts(`${nextVerseLink}\n`);
+    content += `${nextVerseLink}\n`;
   }
-  file.puts(`        </nav>
+  content += `        </nav>
       </footer>
-`);
+`;
 
-  file.puts("    </article>");
-  file.puts(generatePageEnd());
+  content += "    </article>";
+  content += generatePageEnd();
 
-  file.close();
-
+  replaceFileWithContent(filename, content);
   generateSitemapEntry(canonicalName);
 }
 
-generateRobots();
-generateSitemapStart();
+function generateSitemap() {
+  sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+`;
+  sitemap += sitemapEntries;
+  sitemap += "</urlset>\n";
+
+  replaceFileWithContent(sitemapFilename, sitemap);
+}
+
 generateIndex(indexFilename, "");
 generatePages();
 // Generate chapter indexes and verses
@@ -291,7 +254,8 @@ for (let chapterIndex = 0; chapterIndex < dhammapada.chapters.length; chapterInd
       verseIndex);
   }
 }
-generateSitemapEnd();
+generateSitemap();
+generateRobots();
 
 function openFile(filename) {
   print(`Opening file '${filename}' for writing...`);
@@ -318,6 +282,13 @@ function removeFile(filename) {
       std.exit(errno);
     }
   }
+}
+
+function replaceFileWithContent(filename, content) {
+  removeFile(filename);
+  const file = openFile(filename);
+  file.puts(content);
+  file.close();
 }
 
 function createDirectory(directoryName) {
