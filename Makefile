@@ -27,7 +27,7 @@ robots: ## Builds robots.txt
 	@cat ../robots.txt >> robots.txt
 
 .PHONY: rsync
-rsync: ## Syncs artifact to remote server
+rsync: ## Syncs the artifact to the remote server
 	$(info ==> Rsyncing ${domain}'s content to SSH host ${ssh_host}...)
 	@rsync -e "ssh -p ${ssh_port}" -vcrlptDShP --delete --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r \
 		--exclude=.DS_Store \
@@ -41,14 +41,14 @@ rsync: ## Syncs artifact to remote server
 		${ssh_user}@${ssh_host}:${ssh_path}
 
 .PHONY: scprobots
-scprobots: ## Copies robots.txt to remote server
+scprobots: ## Copies robots.txt to the remote server
 	$(info ==> Scp'ing ${domain} robots.txt to SSH host ${ssh_host}...)
 	@scp -P ${ssh_port} robots.txt ${ssh_user}@${ssh_host}:${ssh_path}
 
 .PHONY: compress
 compress: ## Compresses select artifacts on the remote server
 	$(info ==> Compressing ${domain} via SSH...)
-	@ssh -p ${ssh_port} ${ssh_user}@${ssh_host} 'for file in $$(find ${ssh_path} -type f -regex ".*\.\(css\|map\|html\|js\|json\|svg\|txt\|xml\)$$"); do printf . && gzip -kf -9 "$${file}" && brotli -kf -q 9 "$${file}"; done; echo'
+	@ssh -p ${ssh_port} ${ssh_user}@${ssh_host} 'for file in $$(find ${ssh_path} -type f -size +1100c -regex ".*\.\(css\|map\|html\|js\|json\|svg\|txt\|xml\)$$"); do printf . && gzip -kf -9 "$${file}" && brotli -kf -q 9 "$${file}"; done; echo'
 
 .PHONY: compressrobots
 compressrobots: ## Compresses robots.txt on the remote server
@@ -56,7 +56,7 @@ compressrobots: ## Compresses robots.txt on the remote server
 	@ssh -p ${ssh_port} ${ssh_user}@${ssh_host} 'gzip -kf -9 ${ssh_path}/robots.txt && brotli -kf -q 9 ${ssh_path}/robots.txt'
 
 .PHONY: deploy
-deploy: build robots rsync compress ## Builds and deploys artifact to the remote server
+deploy: build robots rsync compress ## Builds and deploys the artifact to the remote server
 	$(info ==> Deployed ${domain} to SSH host ${ssh_host}...)
 
 .PHONY: deployrobots
