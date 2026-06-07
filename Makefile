@@ -5,6 +5,9 @@ domain = $(shell basename $(shell pwd)).michaelnordmeyer.com
 build_date = "2024-04-24T12:00:00.000Z"
 
 ## Deployment settings
+log_path = "/var/log/nginx"
+nginx_user = nginx
+nginx_group = adm
 ssh_host = michaelnordmeyer.com
 ssh_port = 1111
 ssh_user = root
@@ -31,6 +34,7 @@ robots: ## Builds robots.txt
 .PHONY: rsync
 rsync: ## Syncs the artifact to the remote server
 	$(info ==> Rsyncing ${domain}'s content to SSH host ${ssh_host}...)
+	@ssh -p ${ssh_port} ${ssh_user}@${ssh_host} 'touch ${log_path}/${domain}.log && chown ${nginx_user}:${nginx_group} ${log_path}/${domain}.log'
 	@rsync -e "ssh -p ${ssh_port}" -vcrlptDShP --delete --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r \
 		--exclude=.DS_Store \
 		--exclude=._* \
