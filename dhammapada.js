@@ -21,7 +21,7 @@ function generatePageStart(title, canonicalName) {
 <html lang="en-US">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width">
   <meta name="theme-color" content="grey">
   <link rel="icon" type="image/webp" href="/assets/icons/icon.webp">
   <link rel="stylesheet" href="/assets/css/styles.css">
