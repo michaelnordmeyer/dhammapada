@@ -5,13 +5,14 @@ domain = $(shell basename $(shell pwd)).michaelnordmeyer.com
 build_date = "2024-04-24T12:00:00.000Z"
 
 ## Deployment settings
+root_dir_prefix = "/srv/http"
 log_path = "/var/log/nginx"
 nginx_user = nginx
 nginx_group = adm
 ssh_host = michaelnordmeyer.com
 ssh_port = 1111
 ssh_user = root
-ssh_path = "/srv/http/${domain}/"
+ssh_path = "${root_dir_prefix}/${domain}/"
 
 .PHONY: help
 help:
